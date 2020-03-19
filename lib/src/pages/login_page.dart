@@ -1,6 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:formvalidation/src/bloc/login_bloc.dart';
+import 'package:formvalidation/src/bloc/provider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key key}) : super(key: key);
@@ -19,6 +19,7 @@ class LoginPage extends StatelessWidget {
 }
 
 Widget _loginForm(BuildContext context) {
+  final bloc = Provider.of(context);
   final size = MediaQuery.of(context).size;
 
   return SingleChildScrollView(
@@ -47,9 +48,9 @@ Widget _loginForm(BuildContext context) {
             children: <Widget>[
               Text('Ingreso', style: TextStyle(fontSize: 20.0),),
               SizedBox(height: 60.0),
-              _buildEmail(),
+              _buildEmail(bloc),
               SizedBox(height: 30.0),
-              _buildPassword(),
+              _buildPassword(bloc),
               SizedBox(height: 30.0),
               _buildButton()
             ],
@@ -62,31 +63,47 @@ Widget _loginForm(BuildContext context) {
   );
 }
 
-Widget _buildEmail() {
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 20.0),
-    child: TextField(
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
-        hintText: 'example@email.com',
-        labelText: 'Correo electrónico'
-      ),
-    ),
+Widget _buildEmail(LoginBloc bloc) {
+  return StreamBuilder(
+    stream: bloc.emailStream ,
+    builder: (BuildContext context, AsyncSnapshot snapshot){
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.0),
+        child: TextField(
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
+            hintText: 'example@email.com',
+            labelText: 'Correo electrónico',
+            errorText: snapshot.error
+          ),
+          onChanged: (value) => bloc.changeEmail(value),
+        ),
+      );
+    },
   );
+
+ 
 }
 
-Widget _buildPassword() {
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 20.0),
-    child: TextField(
-      obscureText: true,
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
-        labelText: 'Contraseña'
-      ),
-    ),
+Widget _buildPassword(LoginBloc bloc) {
+  return StreamBuilder(
+    stream: bloc.passwordStream ,
+    builder: (BuildContext context, AsyncSnapshot snapshot){
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.0),
+        child: TextField(
+          obscureText: true,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
+            labelText: 'Contraseña',
+            errorText: snapshot.error
+          ),
+          onChanged: bloc.changePassword,
+        ),
+      );
+    },
   );
 }
 
