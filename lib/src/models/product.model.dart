@@ -17,9 +17,9 @@ class ProductModel {
 
     ProductModel({
         this.id,
-        this.title,
-        this.value,
-        this.available,
+        this.title = '',
+        this.value = 0.0,
+        this.available = true,
         this.photoUrl,
     });
 

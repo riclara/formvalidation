@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:formvalidation/src/models/product.model.dart';
 import 'package:formvalidation/src/utils/utils.dart' as utils;
 
 class  ProductPage extends StatefulWidget {
@@ -8,6 +9,8 @@ class  ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   final formKey = GlobalKey<FormState>();
+
+  ProductModel product = ProductModel();
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +37,7 @@ class _ProductPageState extends State<ProductPage> {
               children: <Widget>[
                 _buildName(),
                 _buildPrice(),
+                _buildSwitchAvailable(),
                 _buildButton()
               ],
             )
@@ -45,10 +49,12 @@ class _ProductPageState extends State<ProductPage> {
 
   Widget _buildName() {
     return TextFormField(
+      initialValue: product.title,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         labelText: 'Producto'
       ),
+      onSaved: (value) => product.title = value,
       validator: (value) {
         String msg;
         if (value.length < 3) {
@@ -61,10 +67,12 @@ class _ProductPageState extends State<ProductPage> {
 
   Widget _buildPrice() {
      return TextFormField(
-       keyboardType: TextInputType.numberWithOptions(decimal: true),
+      initialValue: product.value.toString(),
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         labelText: 'Precio'
       ),
+      onSaved: (value) => product.value = double.parse(value),
       validator: (value) {
         String msg;
         if (!utils.isNumeric(value)) {
@@ -88,8 +96,23 @@ class _ProductPageState extends State<ProductPage> {
       );
   }
 
+  Widget _buildSwitchAvailable() {
+    return SwitchListTile(
+      value: product.available,
+      title: Text('Disponible'),
+      onChanged: (value) => setState((){
+        product.available = value;
+      }),
+      activeColor: Colors.deepPurpleAccent,
+    );
+  }
+
   void submit() {
-    if(formKey.currentState.validate()) return
-    print('todo ok');
+    if(!formKey.currentState.validate()) return
+    print('todo ok1');
+    formKey.currentState.save();
+    print('title: ${product.title}');
+    print('title: ${product.value}');
+
   }
 }
