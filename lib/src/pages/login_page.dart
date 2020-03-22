@@ -52,7 +52,7 @@ Widget _loginForm(BuildContext context) {
               SizedBox(height: 30.0),
               _buildPassword(bloc),
               SizedBox(height: 30.0),
-              _buildButton()
+              _buildButton(bloc)
             ],
           ),
         ),
@@ -107,20 +107,27 @@ Widget _buildPassword(LoginBloc bloc) {
   );
 }
 
-Widget _buildButton() {
-  return RaisedButton(
-    child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
-      child: Text('Ingresar', style: TextStyle(color: Colors.white)),
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(5.0)
-    ),
-    elevation: 0.0,
-    color: Colors.deepPurple,
+Widget _buildButton(LoginBloc bloc) {
+  return StreamBuilder(
+    stream: bloc.formValidStream,
+    builder: (BuildContext context, AsyncSnapshot snapshot){
+      final Function fn = snapshot.hasData ? () => _login(context, bloc) : null;
+      return RaisedButton(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
+          child: Text('Ingresar', style: TextStyle(color: Colors.white)),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0)
+        ),
+        elevation: 0.0,
+        color: Colors.deepPurple,
 
-    onPressed: () {}
-  );
+        onPressed: fn
+      );
+    });
+
+  
 }
 
 Widget _buildBackground(BuildContext context) {
@@ -169,4 +176,10 @@ Widget _buildBackground(BuildContext context) {
       
     ],
   );
+}
+
+_login(BuildContext context, LoginBloc bloc) {
+  print('Email: ${bloc.email}');
+  print('password: ${bloc.password}');
+  Navigator.pushReplacementNamed(context, 'home');
 }
