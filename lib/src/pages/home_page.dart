@@ -60,10 +60,25 @@ class _HomePageState extends State<HomePage> {
       onDismissed: (direction) {
         productProvider.deleteProduct(prod.id);
       },
-      child: ListTile(
-        title: Text('${prod.title} - ${prod.value}'),
-        subtitle: Text(prod.id),
-        onTap: () => Navigator.pushNamed(context, 'product', arguments: prod),
+      child: Card(
+        child: Column(
+          children: <Widget>[
+            (prod.photoUrl == null) ? 
+              Image(image: AssetImage('assets/no-image.png')) :
+              FadeInImage(
+                placeholder: AssetImage('assets/jar-loading.gif'),
+                image: NetworkImage(prod.photoUrl),
+                height: 300.0,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+              ListTile(
+                title: Text('${prod.title} - ${prod.value}'),
+                subtitle: Text(prod.id),
+                onTap: () => Navigator.pushNamed(context, 'product', arguments: prod),
+              )
+          ],
+        ),
       ),
     );
   }

@@ -135,10 +135,15 @@ class _ProductPageState extends State<ProductPage> {
     setState(() {
       _disableButton = true;
     });
+
     if(formKey.currentState.validate()) {
+      if (photo != null) {
+        print('into photo');
+        product.photoUrl = await productProvider.uploadFile(photo);
+      }
+
       if (product.id == null) {
-        final Map<String, dynamic> map = await productProvider.createProduct(product);
-        product.id = map['name'];
+        await productProvider.createProduct(product);
       }
       else await productProvider.updateProduct(product);
     }
@@ -150,9 +155,13 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Widget _showPhoto() {
-    if(product.photoUrl != null){
-      // TODO: PENDING
-      return Container();
+    if(product.photoUrl != null && photo == null){
+      return FadeInImage(
+        placeholder: AssetImage('assets/jar-loading.gif'),
+        image: NetworkImage(product.photoUrl),
+        height: 300.0,
+        fit: BoxFit.cover,
+      );
     } else {
       return Image(
         image: AssetImage(photo?.path ?? 'assets/no-image.png'),
