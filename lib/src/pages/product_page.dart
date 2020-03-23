@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:formvalidation/src/models/product.model.dart';
+import 'package:formvalidation/src/providers/product.provider.dart';
 import 'package:formvalidation/src/utils/utils.dart' as utils;
 
 class  ProductPage extends StatefulWidget {
@@ -9,6 +10,8 @@ class  ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   final formKey = GlobalKey<FormState>();
+  final productProvider = ProductProvider();
+
 
   ProductModel product = ProductModel();
 
@@ -109,10 +112,7 @@ class _ProductPageState extends State<ProductPage> {
 
   void submit() {
     if(!formKey.currentState.validate()) return
-    print('todo ok1');
     formKey.currentState.save();
-    print('title: ${product.title}');
-    print('title: ${product.value}');
-
+    productProvider.createProduct(product);
   }
 }
