@@ -17,6 +17,11 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ProductModel prodData = ModalRoute.of(context).settings.arguments;
+    if (prodData != null) {
+      product = prodData;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Producto'),
@@ -57,7 +62,7 @@ class _ProductPageState extends State<ProductPage> {
       decoration: InputDecoration(
         labelText: 'Producto'
       ),
-      onSaved: (value) => product.title = value,
+      onChanged: (value) => product.title = value,
       validator: (value) {
         String msg;
         if (value.length < 3) {
@@ -75,7 +80,7 @@ class _ProductPageState extends State<ProductPage> {
       decoration: InputDecoration(
         labelText: 'Precio'
       ),
-      onSaved: (value) => product.value = double.parse(value),
+      onChanged: (value) => product.value = double.parse(value),
       validator: (value) {
         String msg;
         if (!utils.isNumeric(value)) {
@@ -111,8 +116,12 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void submit() {
-    if(!formKey.currentState.validate()) return
-    formKey.currentState.save();
-    productProvider.createProduct(product);
+    print(formKey.currentState.validate());
+    if(formKey.currentState.validate()) {
+      if (product.id == null) productProvider.createProduct(product);
+      else productProvider.updateProduct(product);
+    }
+    print(product.toJson());
+    
   }
 }

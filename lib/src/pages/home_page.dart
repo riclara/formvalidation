@@ -55,12 +55,12 @@ class HomePage extends StatelessWidget {
         color: Colors.red,
       ),
       onDismissed: (direction) {
-        //TODO: delete product
+        productProvider.deleteProduct(prod.id);
       },
       child: ListTile(
         title: Text('${prod.title} - ${prod.value}'),
         subtitle: Text(prod.id),
-        onTap: () => Navigator.pushNamed(context, 'product'),
+        onTap: () => Navigator.pushNamed(context, 'product', arguments: prod),
       ),
     );
   }
