@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:formvalidation/src/models/product.model.dart';
 import 'package:formvalidation/src/providers/product.provider.dart';
 import 'package:formvalidation/src/utils/utils.dart' as utils;
+import 'package:image_picker/image_picker.dart';
 
 class  ProductPage extends StatefulWidget {
   @override
@@ -10,10 +13,12 @@ class  ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   final formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   final productProvider = ProductProvider();
 
-
   ProductModel product = ProductModel();
+  bool _disableButton = false;
+  File photo;
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +28,17 @@ class _ProductPageState extends State<ProductPage> {
     }
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text('Producto'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.photo_size_select_actual),
-            onPressed: () {}
+            onPressed: () => _getImage(ImageSource.gallery)
           ),
           IconButton(
             icon: Icon(Icons.camera_alt),
-            onPressed: () {}
+            onPressed: () => _getImage(ImageSource.camera)
           )
         ],
       ),
@@ -43,6 +49,7 @@ class _ProductPageState extends State<ProductPage> {
             key: formKey,
             child: Column(
               children: <Widget>[
+                _showPhoto(),
                 _buildName(),
                 _buildPrice(),
                 _buildSwitchAvailable(),
@@ -93,12 +100,13 @@ class _ProductPageState extends State<ProductPage> {
 
   Widget _buildButton() {
     return RaisedButton.icon(
+
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0)
       ),
       color: Colors.deepPurpleAccent,
       textColor: Colors.white,
-      onPressed: submit,
+      onPressed: (_disableButton) ? null : submit,
       icon: Icon(Icons.save),
       label: Text('Guardar')
       );
@@ -115,13 +123,54 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  void submit() {
-    print(formKey.currentState.validate());
+  void _showSnackBar (String msg) {
+    final snackbar = SnackBar(
+      content: Text(msg),
+      duration: Duration(milliseconds: 1500),
+      );
+      scaffoldKey.currentState.showSnackBar(snackbar);
+  }
+
+  void submit() async {
+    setState(() {
+      _disableButton = true;
+    });
     if(formKey.currentState.validate()) {
-      if (product.id == null) productProvider.createProduct(product);
-      else productProvider.updateProduct(product);
+      if (product.id == null) {
+        final Map<String, dynamic> map = await productProvider.createProduct(product);
+        product.id = map['name'];
+      }
+      else await productProvider.updateProduct(product);
     }
-    print(product.toJson());
-    
+    _showSnackBar('Producto Guardado');
+    setState(() {
+      _disableButton = false;
+    });
+    Navigator.pop(context, true);
+  }
+
+  Widget _showPhoto() {
+    if(product.photoUrl != null){
+      // TODO: PENDING
+      return Container();
+    } else {
+      return Image(
+        image: AssetImage(photo?.path ?? 'assets/no-image.png'),
+        height: 300.0,
+        fit: BoxFit.cover,
+      );
+    }
+  }
+
+  void _getImage(ImageSource source) async{
+    photo = await ImagePicker.pickImage(
+      source: source)
+    ;
+    if (photo == null) {
+
+    }
+    setState(() {
+      
+    });
   }
 }

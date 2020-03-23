@@ -3,14 +3,17 @@ import 'package:formvalidation/src/models/product.model.dart';
 import 'package:formvalidation/src/providers/product.provider.dart';
 // import 'package:formvalidation/src/bloc/provider.dart';
 
-class HomePage extends StatelessWidget {
-  final productProvider = ProductProvider();
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  final productProvider = ProductProvider();
 
   @override
   Widget build(BuildContext context) {
     // final bloc = Provider.of(context);
-  
     
     return Scaffold(
       appBar: AppBar(
@@ -64,6 +67,5 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
 }
 
