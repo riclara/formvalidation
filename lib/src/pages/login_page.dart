@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:formvalidation/src/bloc/login_bloc.dart';
 import 'package:formvalidation/src/bloc/provider.dart';
+import 'package:formvalidation/src/providers/user_provider.dart';
+import 'package:formvalidation/src/utils/utils.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key key}) : super(key: key);
+  final userProvider = new UserProvider();
+
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +19,8 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget _loginForm(BuildContext context) {
+  Widget _loginForm(BuildContext context) {
   final bloc = Provider.of(context);
   final size = MediaQuery.of(context).size;
 
@@ -56,7 +58,10 @@ Widget _loginForm(BuildContext context) {
             ],
           ),
         ),
-        Text('¿Olvidó la contraseña?'),
+        FlatButton(
+          onPressed: () => Navigator.pushReplacementNamed(context, 'register'),
+          child: Text('Crear nueva cuenta')
+        ),
         SizedBox(height: 100.0,)
       ],
     )
@@ -178,8 +183,14 @@ Widget _buildBackground(BuildContext context) {
   );
 }
 
-_login(BuildContext context, LoginBloc bloc) {
-  print('Email: ${bloc.email}');
-  print('password: ${bloc.password}');
-  Navigator.pushReplacementNamed(context, 'home');
+_login(BuildContext context, LoginBloc bloc) async{
+  Map<String, dynamic> resp = await userProvider.login(bloc.email, bloc.password);
+  if (resp['ok']) {
+    Navigator.pushReplacementNamed(context, 'home');
+  } else {
+    showAlert(context, 'Usuario o clave incorrectos');
+  }
+  }
+
 }
+
