@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:formvalidation/src/bloc/product_bloc.dart';
+import 'package:formvalidation/src/bloc/provider.dart';
 import 'package:formvalidation/src/models/product.model.dart';
-import 'package:formvalidation/src/providers/product.provider.dart';
 import 'package:formvalidation/src/utils/utils.dart' as utils;
 import 'package:image_picker/image_picker.dart';
 
@@ -14,7 +15,6 @@ class  ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  final productProvider = ProductProvider();
 
   ProductModel product = ProductModel();
   bool _disableButton = false;
@@ -23,6 +23,8 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final ProductModel prodData = ModalRoute.of(context).settings.arguments;
+    final productBloc = Provider.productBloc(context);
+
     if (prodData != null) {
       product = prodData;
     }
@@ -53,7 +55,7 @@ class _ProductPageState extends State<ProductPage> {
                 _buildName(),
                 _buildPrice(),
                 _buildSwitchAvailable(),
-                _buildButton()
+                _buildButton(productBloc)
               ],
             )
             ),
@@ -98,7 +100,7 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  Widget _buildButton() {
+  Widget _buildButton(ProductBloc bloc) {
     return RaisedButton.icon(
 
       shape: RoundedRectangleBorder(
@@ -106,7 +108,7 @@ class _ProductPageState extends State<ProductPage> {
       ),
       color: Colors.deepPurpleAccent,
       textColor: Colors.white,
-      onPressed: (_disableButton) ? null : submit,
+      onPressed: (_disableButton) ? null : () => submit(bloc),
       icon: Icon(Icons.save),
       label: Text('Guardar')
       );
@@ -131,7 +133,7 @@ class _ProductPageState extends State<ProductPage> {
       scaffoldKey.currentState.showSnackBar(snackbar);
   }
 
-  void submit() async {
+  void submit(ProductBloc bloc) async {
     setState(() {
       _disableButton = true;
     });
@@ -139,13 +141,13 @@ class _ProductPageState extends State<ProductPage> {
     if(formKey.currentState.validate()) {
       if (photo != null) {
         print('into photo');
-        product.photoUrl = await productProvider.uploadFile(photo);
+        product.photoUrl = await bloc.uploadPhoto(photo);
       }
 
       if (product.id == null) {
-        await productProvider.createProduct(product);
+        bloc..addProduct(product);
       }
-      else await productProvider.updateProduct(product);
+      else bloc.updateProduct(product);
     }
     _showSnackBar('Producto Guardado');
     setState(() {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:formvalidation/src/bloc/product_bloc.dart';
+import 'package:formvalidation/src/bloc/provider.dart';
 import 'package:formvalidation/src/models/product.model.dart';
 import 'package:formvalidation/src/preferences/UserPreferences.dart';
-import 'package:formvalidation/src/providers/product.provider.dart';
-// import 'package:formvalidation/src/bloc/provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,11 +10,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final productProvider = ProductProvider();
-
   @override
   Widget build(BuildContext context) {
     final prefs = UserPreferences();
+    final productBloc = Provider.productBloc(context);
+
+    productBloc.loadProducts();
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _buildProductList(context),
+      body: _buildProductList(context, productBloc),
       floatingActionButton: _buildButton(context),
     );
   }
@@ -42,16 +43,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductList (BuildContext context) {
-    return FutureBuilder<List<ProductModel>>(
-      future: productProvider.getProducts(context),
+  Widget _buildProductList (BuildContext context, ProductBloc bloc) {
+    return StreamBuilder<List<ProductModel>>(
+      stream: bloc.productStream,
       initialData: [],
-      builder: (BuildContext context, AsyncSnapshot<List<ProductModel>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<ProductModel>> snapshot){
         if (snapshot.hasData) {
           return ListView.builder(
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
-            return _buildItem(context, snapshot.data[index]);
+            return _buildItem(context, snapshot.data[index], bloc);
            },
           );
         } else {
@@ -61,14 +62,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildItem(BuildContext context, ProductModel prod) {
+  Widget _buildItem(BuildContext context, ProductModel prod, ProductBloc bloc) {
     return Dismissible(
       key: UniqueKey(),
       background: Container(
         color: Colors.red,
       ),
       onDismissed: (direction) {
-        productProvider.deleteProduct(prod.id);
+        bloc.deleteProduct(prod.id);
       },
       child: Card(
         child: Column(
