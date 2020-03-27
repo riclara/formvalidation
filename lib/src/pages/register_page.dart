@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:formvalidation/src/bloc/login_bloc.dart';
 import 'package:formvalidation/src/bloc/provider.dart';
 import 'package:formvalidation/src/providers/user_provider.dart';
+import 'package:formvalidation/src/utils/utils.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   final userProvider = UserProvider();
+
+  bool _disabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +21,13 @@ class RegisterPage extends StatelessWidget {
       body: Stack(
         children: <Widget>[
           _buildBackground(context),
-          _loginForm(context)
+          _registerForm(context)
         ],
       ),
     );
   }
-   _register(BuildContext context, LoginBloc bloc) {
-    userProvider.newUser(bloc.email, bloc.password);
-    // Navigator.pushReplacementNamed(context, 'home');
-  }
 
-  Widget _loginForm(BuildContext context) {
+  Widget _registerForm(BuildContext context) {
   final bloc = Provider.of(context);
   final size = MediaQuery.of(context).size;
 
@@ -119,7 +123,7 @@ class RegisterPage extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.formValidStream,
       builder: (BuildContext context, AsyncSnapshot snapshot){
-        final Function fn = snapshot.hasData ? () => _register(context, bloc) : null;
+        final Function fn = snapshot.hasData && !_disabled ? () => _register(context, bloc) : null;
         return RaisedButton(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
@@ -134,8 +138,6 @@ class RegisterPage extends StatelessWidget {
           onPressed: fn
         );
       });
-
-    
   }
 
   Widget _buildBackground(BuildContext context) {
@@ -186,8 +188,18 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
+  _register(BuildContext context, LoginBloc bloc) async{
+    if (_disabled) return;
+    _disabled = true;
+    Map<String, dynamic> resp = await userProvider.newUser(bloc.email, bloc.password);
+    if (resp['ok']) {
+      Navigator.pushReplacementNamed(context, 'home');
+    } else {
+      showAlert(context, 'No hemos creado tu usuario');
+    _disabled = false;
 
-
+    }
+  }
 }
 
  

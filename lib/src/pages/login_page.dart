@@ -4,9 +4,15 @@ import 'package:formvalidation/src/bloc/provider.dart';
 import 'package:formvalidation/src/providers/user_provider.dart';
 import 'package:formvalidation/src/utils/utils.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final userProvider = new UserProvider();
 
+  bool _disabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -183,14 +189,16 @@ Widget _buildBackground(BuildContext context) {
   );
 }
 
-_login(BuildContext context, LoginBloc bloc) async{
-  Map<String, dynamic> resp = await userProvider.login(bloc.email, bloc.password);
-  if (resp['ok']) {
-    Navigator.pushReplacementNamed(context, 'home');
-  } else {
-    showAlert(context, 'Usuario o clave incorrectos');
+  _login(BuildContext context, LoginBloc bloc) async{
+    if (_disabled) return
+    _disabled = true;
+    Map<String, dynamic> resp = await userProvider.login(bloc.email, bloc.password);
+    if (resp['ok']) {
+      Navigator.pushReplacementNamed(context, 'home');
+    } else {
+      showAlert(context, 'Usuario o clave incorrectos');
+    }
+    _disabled = false;
   }
-  }
-
 }
 

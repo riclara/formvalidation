@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:formvalidation/src/models/product.model.dart';
+import 'package:formvalidation/src/preferences/UserPreferences.dart';
 import 'package:formvalidation/src/providers/product.provider.dart';
 // import 'package:formvalidation/src/bloc/provider.dart';
 
@@ -13,13 +14,22 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final bloc = Provider.of(context);
-    
+    final prefs = UserPreferences();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              prefs.removeToken();
+              Navigator.of(context).pushReplacementNamed('login');
+            }
+          ),
+        ],
       ),
-      body: _buildProductList(),
+      body: _buildProductList(context),
       floatingActionButton: _buildButton(context),
     );
   }
@@ -32,9 +42,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductList () {
+  Widget _buildProductList (BuildContext context) {
     return FutureBuilder<List<ProductModel>>(
-      future: productProvider.getProducts(),
+      future: productProvider.getProducts(context),
       initialData: [],
       builder: (BuildContext context, AsyncSnapshot<List<ProductModel>> snapshot) {
         if (snapshot.hasData) {

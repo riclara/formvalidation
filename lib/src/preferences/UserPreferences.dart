@@ -16,6 +16,10 @@ class UserPreferences {
     this._prefs = await SharedPreferences.getInstance();
   }
 
+  void removeToken () {
+    this._prefs.remove('token');
+  }
+
   // GET y SET del token
   get token {
     return _prefs.getString('token') ?? '';
